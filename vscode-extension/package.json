@@ -1,0 +1,125 @@
+{
+  "name": "intelligent-context",
+  "displayName": "Intelligent Context",
+  "description": "Connects VS Code to a local Intelligent Context proxy: auto-discovers your configured models, injects project context, and sends workspace/project hints with every request.",
+  "version": "0.1.0",
+  "publisher": "intelligent-context",
+  "license": "MIT",
+  "private": true,
+  "enabledApiProposals": [
+    "languageModelThinkingPart"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ichijikuibo/Intelligent-Context.git",
+    "directory": "vscode-extension"
+  },
+  "engines": {
+    "vscode": "^1.104.0",
+    "node": ">=20"
+  },
+  "categories": [
+    "AI",
+    "Other"
+  ],
+  "keywords": [
+    "copilot",
+    "chat",
+    "language model",
+    "context",
+    "proxy"
+  ],
+  "main": "./out/extension.js",
+  "extensionKind": [
+    "workspace"
+  ],
+  "contributes": {
+    "languageModelChatProviders": [
+      {
+        "vendor": "intelligent-context",
+        "displayName": "Intelligent Context",
+        "managementCommand": "intelligentContext.manage"
+      }
+    ],
+    "commands": [
+      {
+        "command": "intelligentContext.manage",
+        "title": "Intelligent Context: Configure Connection",
+        "category": "Intelligent Context"
+      },
+      {
+        "command": "intelligentContext.refreshModels",
+        "title": "Intelligent Context: Refresh Model List",
+        "category": "Intelligent Context"
+      },
+      {
+        "command": "intelligentContext.showStatus",
+        "title": "Intelligent Context: Show Status",
+        "category": "Intelligent Context"
+      },
+      {
+        "command": "intelligentContext.clearApiKey",
+        "title": "Intelligent Context: Clear Stored API Key",
+        "category": "Intelligent Context"
+      }
+    ],
+    "configuration": {
+      "title": "Intelligent Context",
+      "properties": {
+        "intelligentContext.baseUrl": {
+          "type": "string",
+          "default": "http://localhost:1234",
+          "markdownDescription": "Base URL of your Intelligent Context proxy. This is the authoritative value — the \"Configure Connection\" command writes here too. The extension appends `/v1/models` and `/v1/chat/completions` (or `/v1/messages` for Anthropic-format models). Set this to a hostname or IP if the proxy runs on another machine.",
+          "order": 1
+        },
+        "intelligentContext.apiKeyHint": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show a one-time prompt to enter the proxy API key when the extension activates and no key is stored yet. The key is kept in VS Code's encrypted secret storage.",
+          "order": 2
+        },
+        "intelligentContext.sendWorkspaceContext": {
+          "type": "boolean",
+          "default": true,
+          "description": "Send the workspace root, workspace name, current file, and active git branch as X-IC-* headers so the proxy can attribute requests to the right project.",
+          "order": 3
+        },
+        "intelligentContext.modelRefreshIntervalMinutes": {
+          "type": "number",
+          "default": 0,
+          "minimum": 0,
+          "description": "Poll the proxy's model list on this interval, in minutes. Set to 0 to disable polling (use \"Refresh Model List\" manually).",
+          "order": 4
+        },
+        "intelligentContext.requestTimeoutMs": {
+          "type": "number",
+          "default": 600000,
+          "minimum": 1000,
+          "description": "Timeout for a single chat request, in milliseconds.",
+          "order": 5
+        },
+        "intelligentContext.maxOutputTokensOverride": {
+          "type": "number",
+          "default": 0,
+          "minimum": 0,
+          "description": "Override the output-token ceiling reported by the proxy. Set to 0 to use the proxy's value.",
+          "order": 6
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "tsc --noEmit -p ./",
+    "package": "vsce package --no-dependencies",
+    "publish": "vsce publish --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "^1.104.0",
+    "@vscode/vsce": "^3.2.1",
+    "typescript": "^5.6.0"
+  }
+}

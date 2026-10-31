@@ -1,0 +1,23 @@
+/* ── simple-datatables dark theme overrides ─────────────────────────────── */
+.datatable-wrapper { font-size: 13px; }
+.datatable-top, .datatable-bottom { padding: 8px 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.datatable-top { margin-bottom: 8px; }
+.datatable-bottom { margin-top: 8px; justify-content: space-between; }
+.datatable-input { background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 6px 10px; font-size: 13px; min-width: 200px; }
+.datatable-input:focus { outline: none; border-color: var(--accent); }
+.datatable-selector { background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 5px 8px; font-size: 13px; font-family: inherit; }
+.datatable-table { background: var(--surface); color: var(--text); width: 100%; border-collapse: collapse; font-size: 13px; }
+.datatable-table thead th { background: var(--surface); color: var(--muted); font-weight: 500; padding: 8px 12px; border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; white-space: nowrap; }
+.datatable-table thead th:hover { color: var(--text); }
+.datatable-sorter::before, .datatable-sorter::after { font-size: 10px; opacity: 0.4; }
+.datatable-wrapper .datatable-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.datatable-wrapper .datatable-table { min-width: 720px; }
+.datatable-table tbody td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.datatable-table tbody tr:last-child td { border-bottom: none; }
+.datatable-pagination { display: flex; gap: 2px; list-style: none; padding: 0; margin: 0; }
+.datatable-pagination a { color: var(--text); background: var(--surface); border: 1px solid var(--border); padding: 4px 10px; border-radius: 4px; text-decoration: none; font-size: 13px; display: inline-block; }
+.datatable-pagination a:hover { background: var(--border); }
+.datatable-pagination a.datatable-active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.datatable-pagination a.datatable-disabled { opacity: 0.4; pointer-events: none; }
+.datatable-info { color: var(--muted); font-size: 12px; }
+.datatable-empty { color: var(--muted); padding: 32px; text-align: center; }

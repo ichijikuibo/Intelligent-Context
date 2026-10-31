@@ -1,0 +1,67 @@
+# Intelligent Context — background service
+# Runs the AI proxy + management UI as a long-running container.
+#
+# DISTRIBUTING: The Dockerfile uses multi-stage builds to produce a single
+# executable (Node.js SEA). The final image contains ONLY the compiled binary,
+# the UI shell, and the SQLite WASM runtime — no TypeScript source, no
+# node_modules, no dev tools, no npm.
+#
+# To distribute without ANY source code:
+#   1. docker compose build
+#   2. docker tag intelligent-context-proxy your-registry/intelligent-context:latest
+#   3. docker push your-registry/intelligent-context:latest
+#   4. Replace "build: ." below with "image: your-registry/intelligent-context:latest"
+#      and ship only this compose file + intelligent-context.yaml
+
+services:
+  proxy:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "31234:1234"   # AI proxy endpoint
+      - "39090:9090"   # Management UI / API
+    environment:
+      - IC_MODE=server
+      - IC_AUTO_RESTART=1
+      # Use SQLite by default; switch to DATABASE_URL for Postgres
+      #- SQLITE_PATH=/app/data/db.sqlite
+      # The DB container in this compose file is configured to listen on 35432
+      # internally (`command: -p 35432`), so container-to-container traffic
+      # must also use 35432.
+      - DATABASE_URL=postgresql://ic:${POSTGRES_PASSWORD}@db:35432/intelligent_context
+      - IC_LOG_LEVEL=info
+    volumes:
+      - context_data:/app/data
+      - ./intelligent-context.yaml:/app/intelligent-context.yaml:ro
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9090/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # PostgreSQL + pgvector (for self-hosted / production use)
+  db:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ic
+      # Required: export POSTGRES_PASSWORD (or add it to .env) before running docker compose.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+      POSTGRES_DB: intelligent_context
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "35432:35432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ic -d intelligent_context -p 35432"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: -p 35432
+
+volumes:
+  context_data:
+  pgdata:

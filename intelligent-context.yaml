@@ -1,0 +1,54 @@
+# intelligent-context.yaml
+# Place in your project root or ~/.intelligent-context/config.yaml
+#
+# NOTE: AI providers (API keys, base URLs, model IDs) are configured via the web UI at
+# http://localhost:9090/ui → Providers tab — NOT in this file.
+# Background job model selections are on the Settings tab.
+# The environment variables below are only used as a one-time bootstrap seed
+# if no providers exist in the database yet.
+
+# Proxy tuning. `rateLimitPerMinute` caps requests per minute per user /
+# API key / IP (token bucket with continuous refill). Can also be set with
+# the IC_RATE_LIMIT_PER_MINUTE environment variable.
+# proxy:
+#   rateLimitPerMinute: 600
+
+context:
+  tokenBudget: 4000
+  autoSummarizeThreshold: 10
+  fallbackExtraction: true
+  embeddingModel: Xenova/all-MiniLM-L6-v2
+  maxCandidates: 50
+  minConfidence: 0.3
+  semanticDuplicateThreshold: 0.92
+
+  # Skip the LLM rerank when the project is small. If the project has at most
+  # `bypassSelectorItemThreshold` chunks+summaries OR the estimated total
+  # token cost is at most `bypassSelectorTokenThreshold`, the LLM call is
+  # skipped and every chunk/summary is attached directly.
+  bypassSelectorItemThreshold: 10
+  bypassSelectorTokenThreshold: 2000
+
+  # Tool-continuation replay cache. Set ttl to 0 to disable replay caching.
+  contextReplayTtlMinutes: 30
+  maxCachedContexts: 200
+
+  # Token-budget math. `reservedResponseTokens` is held back for the model's
+  # reply; `contextOverheadTokens` is per-request priming + framing overhead.
+  # `defaultModelMaxTokens` is used when a model name is not in the known-list.
+  reservedResponseTokens: 4000
+  contextOverheadTokens: 500
+  defaultModelMaxTokens: 16000
+
+  # Upper bound on the number of facts a single `ic` record call persists.
+  # Larger batches are processed up to this limit and the model is told to
+  # send the remainder in a follow-up call (nothing is discarded outright).
+  maxRecordLearnings: 200
+
+workers:
+  summarizeIntervalMinutes: 5
+  analyzeIntervalHours: 24
+  idleThresholdMinutes: 30
+
+logging:
+  level: info

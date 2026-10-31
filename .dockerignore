@@ -1,0 +1,41 @@
+# Dependencies (re-installed inside container)
+node_modules/
+
+# Source code needed in builder stage; tests stay excluded
+tests/
+
+# Build output (re-built inside container)
+dist/
+
+# Documentation & project files
+docs/
+*.md
+.git/
+.gitignore
+
+# IDE / editor config
+.vscode/
+.idea/
+
+# Environment files (use env vars in compose)
+.env
+.env.*
+!.env.example
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Docker / compose (not needed inside image)
+docker-compose*.yml
+Dockerfile*
+.dockerignore
+
+# Scripts (only the SEA build script is needed in container)
+scripts/*
+!scripts/build-sea.mjs
+
+# Node specifics
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

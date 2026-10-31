@@ -1,0 +1,45 @@
+{
+  "name": "intelligent-context",
+  "version": "0.1.0",
+  "description": "AI proxy with intelligent context injection and auto-learning",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "build:sea": "node scripts/build-sea.mjs",
+    "start": "node  dist/index.js",
+    "dev": "tsx watch src/index.ts",
+    "dev:nowatch": "tsx src/index.ts",
+    "db:migrate": "tsx src/db/migrate.ts",
+    "test": "vitest run",
+    "install-service:win": "tsx scripts/install-service.ts",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "@xenova/transformers": "^2.14.0",
+    "axios": "^1.6.0",
+    "cors": "^2.8.5",
+    "drizzle-orm": "^0.45.2",
+    "express": "^5.2.1",
+    "node-cron": "^4.5.0",
+    "pg": "^8.22.0",
+    "sql.js": "^1.14.1",
+    "uuid": "^14.0.1",
+    "yaml": "^2.3.4",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.6",
+    "@types/node": "^24.1.0",
+    "@types/pg": "^8.10.9",
+    "@types/sql.js": "^1.4.11",
+    "esbuild": "^0.28.1",
+    "jsdom": "^29.1.1",
+    "postject": "^1.0.0-alpha.6",
+    "tsx": "^4.7.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
+  }
+}

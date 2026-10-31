@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Intelligent Context - Management</title>
+  <link rel="stylesheet" href="css/app.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-datatables@9/dist/style.css" />
+  <link rel="stylesheet" href="css/datatables.css" />
+</head>
+<body>
+<div id="authScreen" style="display:none;min-height:100vh;padding:32px"></div>
+<header id="appHeader">
+  <div class="header-brand">
+    <button id="mobileNavToggle" class="icon-btn mobile-only" type="button" onclick="toggleSidebar()" aria-label="Toggle navigation" aria-expanded="false">&#9776;</button>
+    <h1 id="headerTitle">Intelligent Context</h1>
+    <span id="headerProjectName" class="header-project-name" style="display:none"></span>
+  </div>
+  <div id="headerToolbar" class="header-toolbar">
+    <div class="header-controls">
+      <div class="header-field">
+        <label id="headerProjectLabel" for="headerProjectSelect">Project:</label>
+        <select id="headerProjectSelect" class="header-inline-select" onchange="onHeaderProjectChange()">
+          <option value="">Loading...</option>
+        </select>
+      </div>
+      <div class="header-field">
+        <label id="headerLocaleLabel" for="headerLocaleSelect">Language:</label>
+        <select id="headerLocaleSelect" class="header-inline-select header-locale-select" onchange="onLocaleChange()">
+          <option value="en">English</option>
+        </select>
+      </div>
+    </div>
+    <div class="header-meta">
+      <button id="headerNotifications" class="icon-btn" style="display:none;position:relative" onclick="openNotificationDialog()" aria-label="Notifications" title="Notifications">
+        &#x1F514;
+        <span id="notificationBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;border-radius:50%;width:18px;height:18px;font-size:11px;line-height:18px;text-align:center;font-weight:600"></span>
+      </button>
+      <span id="headerUser" class="text-sm text-muted" style="display:none"></span>
+      <button id="headerLogout" class="btn btn-sm btn-ghost" style="display:none" onclick="logout()">Logout</button>
+      <span id="headerStatus">Loading...</span>
+    </div>
+  </div>
+  <button id="mobileHeaderToggle" class="icon-btn mobile-only" type="button" onclick="toggleHeaderMenu()" aria-label="Toggle header controls" aria-expanded="false">&#8942;</button>
+</header>
+<div id="mobileBackdrop" onclick="closeResponsiveChrome()" aria-hidden="true"></div>
+<div class="layout" id="appLayout">
+  <nav id="nav">
+    <!-- Instance-wide: these tabs are the same whatever project is selected. -->
+    <button id="nav-overview" data-tab="overview" class="active" onclick="showTab('overview')">Overview</button>
+    <button id="nav-providers" data-tab="providers" onclick="showTab('providers')">Providers</button>
+    <button id="nav-external-providers" data-tab="external-providers" onclick="showTab('external-providers')">External Providers</button>
+    <button id="nav-models" data-tab="models" onclick="showTab('models')">Models</button>
+    <button id="nav-projects" data-tab="projects" onclick="showTab('projects')">Projects</button>
+
+    <!-- Project-scoped: everything below reads and writes the project picked in
+         the header, so it is indented and shaded to make that obvious. -->
+    <div class="nav-group" id="nav-project-group">
+      <div class="nav-group-label" id="navProjectGroupLabel">Project Data</div>
+      <button id="nav-chat" data-tab="chat" onclick="showTab('chat')">Chat</button>
+      <button id="nav-chunks" data-tab="chunks" onclick="showTab('chunks')">Learning Chunks</button>
+      <button id="nav-code-extracts" data-tab="code-extracts" onclick="showTab('code-extracts')">Code Extracts</button>
+      <button id="nav-files" data-tab="files" onclick="showTab('files')">Recorded Files</button>
+      <button id="nav-summaries" data-tab="summaries" onclick="showTab('summaries')">Summaries</button>
+      <button id="nav-findings" data-tab="findings" onclick="showTab('findings')">Findings</button>
+      <button id="nav-stats" data-tab="stats" onclick="showTab('stats')">Statistics</button>
+    </div>
+
+    <!-- Instance-wide again: account, keys, configuration and background jobs. -->
+    <button id="nav-users" data-tab="users" onclick="showTab('users')" style="display:none">Users</button>
+    <button id="nav-api-keys" data-tab="api-keys" onclick="showTab('api-keys')" style="display:none">My API Keys</button>
+    <button id="nav-settings" data-tab="settings" onclick="showTab('settings')">Settings</button>
+    <button id="nav-task-runs" data-tab="task-runs" onclick="showTab('task-runs')" style="display:none">Task Runs</button>
+  </nav>
+  <main id="main">
+    <div id="tab-overview"></div>
+    <div id="tab-providers" style="display:none"></div>
+    <div id="tab-external-providers" style="display:none"></div>
+    <div id="tab-models" style="display:none"></div>
+    <div id="tab-projects" style="display:none"></div>
+    <div id="tab-users" style="display:none"></div>
+    <div id="tab-api-keys" style="display:none"></div>
+    <div id="tab-chat" style="display:none"></div>
+    <div id="tab-chunks" style="display:none"></div>
+    <div id="tab-code-extracts" style="display:none"></div>
+    <div id="tab-files" style="display:none"></div>
+    <div id="tab-summaries" style="display:none"></div>
+    <div id="tab-findings" style="display:none"></div>
+    <div id="tab-stats" style="display:none"></div>
+    <div id="tab-settings" style="display:none"></div>
+    <div id="tab-task-runs" style="display:none"></div>
+  </main>
+</div>
+<div id="toast"></div>
+<div id="notificationDialogBackdrop" class="summary-dialog-backdrop" style="display:none" onclick="closeNotificationDialog()">
+  <div class="summary-dialog" role="dialog" aria-modal="true" aria-labelledby="notificationDialogTitle" onclick="event.stopPropagation()">
+    <div class="summary-dialog-header">
+      <h3 id="notificationDialogTitle">Notifications</h3>
+      <button class="btn btn-sm btn-ghost" type="button" onclick="markAllNotificationsRead()">Mark all read</button>
+      <button class="btn btn-sm btn-ghost" type="button" onclick="closeNotificationDialog()">Close</button>
+    </div>
+    <div id="notificationDialogBody" class="summary-dialog-body"></div>
+  </div>
+</div>
+<div id="chatKnowledgeBackdrop" class="summary-dialog-backdrop" style="display:none" onclick="closeChatKnowledgeDialog()">
+  <div class="summary-dialog chat-knowledge-dialog" role="dialog" aria-modal="true" aria-labelledby="chatKnowledgeTitle" onclick="event.stopPropagation()">
+    <div class="summary-dialog-header">
+      <h3 id="chatKnowledgeTitle">Attach project knowledge</h3>
+      <button class="btn btn-sm btn-ghost" type="button" onclick="closeChatKnowledgeDialog()">Close</button>
+    </div>
+    <div class="chat-knowledge-filters">
+      <input type="search" id="chatKnowledgeSearch" class="chat-knowledge-search" oninput="onChatKnowledgeSearch(this.value)" />
+      <div class="chat-knowledge-types">
+        <label><input type="checkbox" id="chatKnowledgeType-summary" checked onchange="onChatKnowledgeTypeToggle('summary', this.checked)" /> <span data-kind-label="summary"></span></label>
+        <label><input type="checkbox" id="chatKnowledgeType-finding" checked onchange="onChatKnowledgeTypeToggle('finding', this.checked)" /> <span data-kind-label="finding"></span></label>
+        <label><input type="checkbox" id="chatKnowledgeType-file" checked onchange="onChatKnowledgeTypeToggle('file', this.checked)" /> <span data-kind-label="file"></span></label>
+      </div>
+    </div>
+    <div id="chatKnowledgeBody" class="summary-dialog-body"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@9/dist/umd/simple-datatables.js"></script>
+<script src="js/state.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/api.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/chrome.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/setup.js"></script>
+<script src="js/render.js"></script>
+<script src="js/providers.js"></script>
+<script src="js/models.js"></script>
+<script src="js/projects.js"></script>
+<script src="js/data-tabs.js"></script>
+<script src="js/chat.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/notifications.js"></script>
+<script src="js/init.js"></script>
+</body>
+</html>
